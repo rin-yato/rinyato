@@ -1,0 +1,6 @@
+{
+  "srcDir": "./src",
+  "modulesDir": "./src/api",
+  "moduleImportAlias": "./api/",
+  "entryFile": "./src/index.ts"
+}

@@ -1,0 +1,19 @@
+{
+  "name": "rinyato",
+  "scripts": {
+    "dev": "tsx ./src/index.ts",
+    "build": "node ./esbuild.config.mjs",
+    "start": "pnpm build && node ./dist/index.js"
+  },
+  "devDependencies": {
+    "@types/node": "^20.6.2",
+    "esbuild": "^0.19.3",
+    "tsx": "^3.12.10",
+    "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "@clack/core": "^0.3.3",
+    "@clack/prompts": "^0.7.0",
+    "picocolors": "^1.0.0"
+  }
+}
