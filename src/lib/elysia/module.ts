@@ -79,14 +79,49 @@ async function addModuleToEntryFile(moduleName: string, routeName: string) {
     const entryFile = await fs.readFile('./src/index.ts', 'utf-8');
     const lines = entryFile.split('\n');
 
+    const appDeclaration = lines.find(line =>
+      line.startsWith('const app = new Elysia()'),
+    );
+
+    const isOneLine =
+      appDeclaration &&
+      (appDeclaration.endsWith(';') || appDeclaration.includes('.listen'));
+
     const importLine = `import { ${moduleName} } from './api/${routeName}';`;
-    const appLine = `.use(${moduleName})`;
+    const useLine = `.use(${moduleName})`;
 
-    const importIndex = lines.findIndex(line => line.includes('import'));
-    const appIndex = lines.findIndex(line => line.includes('.use'));
+    const importIndex = lines.findLastIndex(line => line.includes('import'));
 
+    // add the import line after the last import line
     lines.splice(importIndex + 1, 0, importLine);
-    lines.splice(appIndex + 1, 0, appLine);
+
+    if (isOneLine) {
+      const separated = appDeclaration.split('.');
+      const lastUseIndex = separated.findLastIndex(line => line.includes('use'));
+      let newAppDeclaration = '';
+      if (lastUseIndex === -1) {
+        // add the use line after the app declaration
+        newAppDeclaration = separated
+          .map((line, index) => (index === 0 ? line + useLine : line))
+          .join('.');
+      } else {
+        newAppDeclaration = separated
+          .map((line, index) =>
+            index === lastUseIndex ? line + useLine : line,
+          )
+          .join('.');
+      }
+
+      lines.splice(
+        lines.findIndex(line => line === appDeclaration),
+        1,
+        newAppDeclaration,
+      );
+    } else {
+      // add the use line after the last use line
+      const useIndex = lines.findLastIndex(line => line.includes('.use'));
+      lines.splice(useIndex + 1, 0, useLine);
+    }
 
     await fs.writeFile('./src/index.ts', lines.join('\n'));
   } catch (error) {
